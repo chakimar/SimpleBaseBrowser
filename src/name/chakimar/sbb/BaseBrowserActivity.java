@@ -194,9 +194,6 @@ public abstract class BaseBrowserActivity extends Activity implements DownloadLi
 		request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, URLUtil.guessFileName(url, contentDisposition, mimetype));
 //		request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI);
 		request.setMimeType(mimetype);
-		long id = dm.enqueue(request);
+		dm.enqueue(request);
 	}
-	
-	
-	
 }
