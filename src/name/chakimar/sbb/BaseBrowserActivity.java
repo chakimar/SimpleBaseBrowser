@@ -2,10 +2,8 @@ package name.chakimar.sbb;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.DownloadManager;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -26,23 +24,9 @@ import android.widget.Toast;
 
 public abstract class BaseBrowserActivity extends Activity implements DownloadListener{
 	private static final String SEARCH_QUERY = "http://www.google.co.jp?q=";
-	private static final int DIALOG_ID_SEARCH = 0;
 	private static final int ITEM_ID_SEARCH = 0;
 	protected WebView webview;
 	protected WebViewClient webviewClient = new WebViewClient() {
-
-		@Override
-		public boolean shouldOverrideUrlLoading(WebView view, String url) {
-			// TODO 自動生成されたメソッド・スタブ
-			if (url.endsWith(".txt")) {
-				Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-				startActivity(intent);
-				webview.getSettings().setDefaultTextEncodingName("utf-8");
-//				return true;
-			}
-			
-			return super.shouldOverrideUrlLoading(view, url);
-		}
 		//TODO ベーシック認証に対応する
 		//TODO フォームのリサブミットに対応する
 		//TODO SSLエラーに対応する。（オレオレ証明書）
@@ -138,40 +122,12 @@ public abstract class BaseBrowserActivity extends Activity implements DownloadLi
 				finish();
 				return true;
 			}
+		} else if (event.getAction() == KeyEvent.ACTION_DOWN
+						&& event.getKeyCode() == KeyEvent.KEYCODE_SEARCH) {
+			openSearchDialog();
 		}
+		
 		return super.dispatchKeyEvent(event);
-	}
-	
-	@Override
-	protected Dialog onCreateDialog(int id) {
-		if (id == DIALOG_ID_SEARCH) {
-			LayoutInflater inflater = getLayoutInflater();
-			final TextView view = (TextView) inflater.inflate(R.layout.move_or_search_dialog, null);
-			view.setText(webview.getUrl());
-			AlertDialog dialog = new AlertDialog.Builder(this)
-			.setView(view)
-			.setPositiveButton(R.string.move, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					loadUrl(view.getText().toString());
-				}
-			})
-			.setNeutralButton(R.string.search, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					searchUrl(view.getText().toString());
-				}
-			})
-			.setNegativeButton(R.string.cancel, null)
-			.create();
-			
-			//ダイアログ表示時にキーボードを表示させる
-			dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-			view.requestFocus();
-			
-			return dialog;
-		}
-		return super.onCreateDialog(id);
 	}
 
 	@Override
@@ -190,7 +146,34 @@ public abstract class BaseBrowserActivity extends Activity implements DownloadLi
 	}
 
 	protected void openSearchDialog() {
-		showDialog(DIALOG_ID_SEARCH);
+		LayoutInflater inflater = getLayoutInflater();
+		final TextView view = (TextView) inflater.inflate(R.layout.move_or_search_dialog, null);
+		view.setText(webview.getUrl());
+		AlertDialog dialog = new AlertDialog.Builder(this)
+		.setView(view)
+		.setPositiveButton(R.string.move, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				String url = view.getText().toString();
+				if (!url.startsWith("http://")) {
+					url = "http://" + url;
+				}
+				loadUrl(url);
+			}
+		})
+		.setNeutralButton(R.string.search, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				searchUrl(view.getText().toString());
+			}
+		})
+		.setNegativeButton(R.string.cancel, null)
+		.create();
+		
+		//ダイアログ表示時にキーボードを表示させる
+		dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+		view.requestFocus();
+		dialog.show();
 	}
 
 	@Override
