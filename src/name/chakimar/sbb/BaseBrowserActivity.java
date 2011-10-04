@@ -3,26 +3,46 @@ package name.chakimar.sbb;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.DownloadManager;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.DownloadListener;
+import android.webkit.URLUtil;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.TextView;
+import android.widget.Toast;
 
-public abstract class BaseBrowserActivity extends Activity {
+public abstract class BaseBrowserActivity extends Activity implements DownloadListener{
 	private static final String SEARCH_QUERY = "http://www.google.co.jp?q=";
 	private static final int DIALOG_ID_SEARCH = 0;
 	private static final int ITEM_ID_SEARCH = 0;
 	protected WebView webview;
 	protected WebViewClient webviewClient = new WebViewClient() {
+
+		@Override
+		public boolean shouldOverrideUrlLoading(WebView view, String url) {
+			// TODO 自動生成されたメソッド・スタブ
+			if (url.endsWith(".txt")) {
+				Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+				startActivity(intent);
+				webview.getSettings().setDefaultTextEncodingName("utf-8");
+//				return true;
+			}
+			
+			return super.shouldOverrideUrlLoading(view, url);
+		}
 		//TODO ベーシック認証に対応する
 		//TODO フォームのリサブミットに対応する
 		//TODO SSLエラーに対応する。（オレオレ証明書）
@@ -62,9 +82,12 @@ public abstract class BaseBrowserActivity extends Activity {
 		webview = new WebView(this);
 		webview.setWebViewClient(webviewClient);
 		webview.setWebChromeClient(webChromeClient);
+		webview.setDownloadListener(this);
 		
 		WebSettings settings = webview.getSettings();
 		settings.setJavaScriptEnabled(true);
+		//ズームコントロールを追加
+		settings.setBuiltInZoomControls(true);
 		//ダブルタップズームに必要
 		settings.setUseWideViewPort(true);
 		//ズームアウトして画面全体を表示させる。
@@ -169,5 +192,28 @@ public abstract class BaseBrowserActivity extends Activity {
 	protected void openSearchDialog() {
 		showDialog(DIALOG_ID_SEARCH);
 	}
+
+	@Override
+	public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
+		Toast.makeText(this, "onDownloadStart", Toast.LENGTH_SHORT).show();
+		
+		try {
+			downloadByDownloadManager(url, contentDisposition, mimetype);
+		} catch (NoClassDefFoundError e) {
+			//TODO 通常のダウンロード処理を書く
+		}
+	}
+
+	private void downloadByDownloadManager(String url,
+			String contentDisposition, String mimetype) {
+		DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+		DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+		request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, URLUtil.guessFileName(url, contentDisposition, mimetype));
+//		request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI);
+		request.setMimeType(mimetype);
+		long id = dm.enqueue(request);
+	}
+	
+	
 	
 }

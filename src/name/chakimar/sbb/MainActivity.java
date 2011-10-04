@@ -9,6 +9,6 @@ public class MainActivity extends BaseBrowserActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(webview);
-        loadUrl("http://www.google.co.jp");
+        loadUrl("http://www.google.co.jp?q=filetype:pdf");
     }
 }
