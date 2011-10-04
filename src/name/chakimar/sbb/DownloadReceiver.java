@@ -21,7 +21,7 @@ public class DownloadReceiver extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
 		Log.d(TAG, "onReceive:"+intent);
 		Bundle bundle = intent.getExtras();
-		long downloadId = bundle.getLong("extra_download_id");
+		long downloadId = bundle.getLong(DownloadManager.EXTRA_DOWNLOAD_ID);
 		if (downloadId == 0L) {
 			//error
 			return;

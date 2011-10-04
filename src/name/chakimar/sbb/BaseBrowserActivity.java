@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -25,12 +26,13 @@ import android.widget.Toast;
 public abstract class BaseBrowserActivity extends Activity implements DownloadListener{
 	private static final String SEARCH_QUERY = "http://www.google.co.jp?q=";
 	private static final int ITEM_ID_SEARCH = 0;
+	private static final int ITEM_ID_DOWNLOAD_HISTORY = ITEM_ID_SEARCH + 1;
 	protected WebView webview;
 	protected WebViewClient webviewClient = new WebViewClient() {
 		//TODO ベーシック認証に対応する
 		//TODO フォームのリサブミットに対応する
 		//TODO SSLエラーに対応する。（オレオレ証明書）
-		
+		//TODO マーケットのリンク等、WebViewで開けないリンクに対応する
 	};
 	protected WebChromeClient webChromeClient = new WebChromeClient() {
 		@Override
@@ -49,7 +51,7 @@ public abstract class BaseBrowserActivity extends Activity implements DownloadLi
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_PROGRESS);
 		//プログレスバーがしましま模様になる。
-//		setProgressBarIndeterminate(true);
+		//		setProgressBarIndeterminate(true);
 		initWebView();
 	}
 
@@ -67,7 +69,7 @@ public abstract class BaseBrowserActivity extends Activity implements DownloadLi
 		webview.setWebViewClient(webviewClient);
 		webview.setWebChromeClient(webChromeClient);
 		webview.setDownloadListener(this);
-		
+
 		WebSettings settings = webview.getSettings();
 		settings.setJavaScriptEnabled(true);
 		//ズームコントロールを追加
@@ -78,9 +80,9 @@ public abstract class BaseBrowserActivity extends Activity implements DownloadLi
 		settings.setLoadWithOverviewMode(true);
 		//Flash再生に対応
 		settings.setPluginsEnabled(true);
-		
+
 	}
-	
+
 	/**
 	 * WebViewの最終処理
 	 */
@@ -93,7 +95,7 @@ public abstract class BaseBrowserActivity extends Activity implements DownloadLi
 		webview.destroy();
 		webview = null;
 	}
-	
+
 	protected void loadUrl(final String url) {
 		runOnUiThread(new Runnable() {
 			@Override
@@ -123,26 +125,36 @@ public abstract class BaseBrowserActivity extends Activity implements DownloadLi
 				return true;
 			}
 		} else if (event.getAction() == KeyEvent.ACTION_DOWN
-						&& event.getKeyCode() == KeyEvent.KEYCODE_SEARCH) {
+				&& event.getKeyCode() == KeyEvent.KEYCODE_SEARCH) {
 			openSearchDialog();
 		}
-		
+
 		return super.dispatchKeyEvent(event);
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(0, ITEM_ID_SEARCH, 0, R.string.search);
+		menu.add(0, ITEM_ID_DOWNLOAD_HISTORY, 1, R.string.download_history);
 		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
-		if (featureId == ITEM_ID_SEARCH) {
+		int itemId = item.getItemId();
+		if (itemId == ITEM_ID_SEARCH) {
 			openSearchDialog();
+			return true;
+		} else if (itemId == ITEM_ID_DOWNLOAD_HISTORY) {
+			startDownloadHistoryActivity();
 			return true;
 		}
 		return super.onMenuItemSelected(featureId, item);
+	}
+
+	private void startDownloadHistoryActivity() {
+		Intent intent = new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS);
+		startActivity(intent);
 	}
 
 	protected void openSearchDialog() {
@@ -169,7 +181,7 @@ public abstract class BaseBrowserActivity extends Activity implements DownloadLi
 		})
 		.setNegativeButton(R.string.cancel, null)
 		.create();
-		
+
 		//ダイアログ表示時にキーボードを表示させる
 		dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 		view.requestFocus();
@@ -178,8 +190,8 @@ public abstract class BaseBrowserActivity extends Activity implements DownloadLi
 
 	@Override
 	public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
-		Toast.makeText(this, "onDownloadStart", Toast.LENGTH_SHORT).show();
-		
+		Toast.makeText(this, "download started", Toast.LENGTH_SHORT).show();
+
 		try {
 			downloadByDownloadManager(url, contentDisposition, mimetype);
 		} catch (NoClassDefFoundError e) {
@@ -192,7 +204,7 @@ public abstract class BaseBrowserActivity extends Activity implements DownloadLi
 		DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
 		DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
 		request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, URLUtil.guessFileName(url, contentDisposition, mimetype));
-//		request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI);
+		//		request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI);
 		request.setMimeType(mimetype);
 		dm.enqueue(request);
 	}
