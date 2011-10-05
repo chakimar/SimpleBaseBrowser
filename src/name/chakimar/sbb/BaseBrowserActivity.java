@@ -161,8 +161,8 @@ public abstract class BaseBrowserActivity extends Activity implements DownloadLi
 		menu.add(0, ITEM_ID_RELOAD_OR_STOP, 0, R.string.reload);
 		menu.add(0, ITEM_ID_SEARCH, 0, R.string.search);
 		menu.add(0, ITEM_ID_HOMEPAGE, 0, R.string.homepage);
-		menu.add(0, ITEM_ID_DOWNLOAD_HISTORY, 0, R.string.download_history);
-		menu.add(0, ITEM_ID_SETTINGS, 0, R.string.settings);
+		menu.add(0, ITEM_ID_DOWNLOAD_HISTORY, 0, R.string.download_history).setIntent(new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS));
+		menu.add(0, ITEM_ID_SETTINGS, 0, R.string.settings).setIntent(new Intent(this, BaseSettingsActivity.class));
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -206,25 +206,7 @@ public abstract class BaseBrowserActivity extends Activity implements DownloadLi
 			loadUrl(app.getHomepage());
 			return true;
 		}
-		if (itemId == ITEM_ID_DOWNLOAD_HISTORY) {
-			startDownloadHistoryActivity();
-			return true;
-		}
-		if (itemId == ITEM_ID_SETTINGS) {
-			startSettingsActivity();
-			return true;
-		}
 		return super.onMenuItemSelected(featureId, item);
-	}
-
-	private void startSettingsActivity() {
-		Intent intent = new Intent(this, BaseSettingsActivity.class);
-		startActivity(intent);
-	}
-
-	private void startDownloadHistoryActivity() {
-		Intent intent = new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS);
-		startActivity(intent);
 	}
 
 	protected void openSearchDialog() {
