@@ -32,7 +32,10 @@ public abstract class BaseBrowserActivity extends Activity implements DownloadLi
 	private static final int ITEM_ID_GO_FOWARD = ITEM_ID_GO_BACK + 1;
 	private static final int ITEM_ID_RELOAD_OR_STOP = ITEM_ID_GO_FOWARD + 1;
 	private static final int ITEM_ID_SEARCH = ITEM_ID_RELOAD_OR_STOP + 1;
-	private static final int ITEM_ID_DOWNLOAD_HISTORY = ITEM_ID_SEARCH + 1;
+	private static final int ITEM_ID_HOMEPAGE = ITEM_ID_SEARCH + 1;
+	private static final int ITEM_ID_DOWNLOAD_HISTORY = ITEM_ID_HOMEPAGE + 1;
+	private static final int ITEM_ID_SETTINGS = ITEM_ID_DOWNLOAD_HISTORY + 1;
+	protected SimpleBaseBrowser app;
 	protected WebView webview;
 	public boolean nowloading;
 	protected WebViewClient webviewClient = new WebViewClient() {
@@ -70,6 +73,7 @@ public abstract class BaseBrowserActivity extends Activity implements DownloadLi
 		requestWindowFeature(Window.FEATURE_PROGRESS);
 		//プログレスバーがしましま模様になる。
 		//		setProgressBarIndeterminate(true);
+		this.app = (SimpleBaseBrowser) getApplication();
 		initWebView();
 	}
 
@@ -156,7 +160,9 @@ public abstract class BaseBrowserActivity extends Activity implements DownloadLi
 		menu.add(0, ITEM_ID_GO_FOWARD, 0, R.string.go_foward);
 		menu.add(0, ITEM_ID_RELOAD_OR_STOP, 0, R.string.reload);
 		menu.add(0, ITEM_ID_SEARCH, 0, R.string.search);
+		menu.add(0, ITEM_ID_HOMEPAGE, 0, R.string.homepage);
 		menu.add(0, ITEM_ID_DOWNLOAD_HISTORY, 0, R.string.download_history);
+		menu.add(0, ITEM_ID_SETTINGS, 0, R.string.settings);
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -196,11 +202,24 @@ public abstract class BaseBrowserActivity extends Activity implements DownloadLi
 			openSearchDialog();
 			return true;
 		}
+		if (itemId == ITEM_ID_HOMEPAGE) {
+			loadUrl(app.getHomepage());
+			return true;
+		}
 		if (itemId == ITEM_ID_DOWNLOAD_HISTORY) {
 			startDownloadHistoryActivity();
 			return true;
 		}
+		if (itemId == ITEM_ID_SETTINGS) {
+			startSettingsActivity();
+			return true;
+		}
 		return super.onMenuItemSelected(featureId, item);
+	}
+
+	private void startSettingsActivity() {
+		Intent intent = new Intent(this, BaseSettingsActivity.class);
+		startActivity(intent);
 	}
 
 	private void startDownloadHistoryActivity() {
