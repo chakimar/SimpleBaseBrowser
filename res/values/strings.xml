@@ -6,5 +6,9 @@
     <string name="move">移動</string>
     <string name="search">検索</string>
     <string name="download_history">ダウンロード履歴</string>
+    <string name="go_foward">進む</string>
+    <string name="go_back">戻る</string>
+    <string name="reload">更新</string>
+    <string name="stop">停止</string>
     
 </resources>

@@ -7,6 +7,7 @@ import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -27,14 +28,29 @@ import android.widget.Toast;
 
 public abstract class BaseBrowserActivity extends Activity implements DownloadListener{
 	private static final String SEARCH_QUERY = "http://www.google.co.jp?q=";
-	private static final int ITEM_ID_SEARCH = 0;
+	private static final int ITEM_ID_GO_BACK = 0;
+	private static final int ITEM_ID_GO_FOWARD = ITEM_ID_GO_BACK + 1;
+	private static final int ITEM_ID_RELOAD_OR_STOP = ITEM_ID_GO_FOWARD + 1;
+	private static final int ITEM_ID_SEARCH = ITEM_ID_RELOAD_OR_STOP + 1;
 	private static final int ITEM_ID_DOWNLOAD_HISTORY = ITEM_ID_SEARCH + 1;
 	protected WebView webview;
+	public boolean nowloading;
 	protected WebViewClient webviewClient = new WebViewClient() {
+
+		@Override
+		public void onPageStarted(WebView view, String url, Bitmap favicon) {
+			BaseBrowserActivity.this.nowloading = true;
+		}
+		
+		@Override
+		public void onPageFinished(WebView view, String url) {
+			BaseBrowserActivity.this.nowloading = false;
+		}
 		//TODO ベーシック認証に対応する
 		//TODO フォームのリサブミットに対応する
 		//TODO SSLエラーに対応する。（オレオレ証明書）
 		//TODO マーケットのリンク等、WebViewで開けないリンクに対応する
+		
 	};
 	protected WebChromeClient webChromeClient = new WebChromeClient() {
 		@Override
@@ -136,18 +152,51 @@ public abstract class BaseBrowserActivity extends Activity implements DownloadLi
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
+		menu.add(0, ITEM_ID_GO_BACK, 0, R.string.go_back);
+		menu.add(0, ITEM_ID_GO_FOWARD, 0, R.string.go_foward);
+		menu.add(0, ITEM_ID_RELOAD_OR_STOP, 0, R.string.reload);
 		menu.add(0, ITEM_ID_SEARCH, 0, R.string.search);
-		menu.add(0, ITEM_ID_DOWNLOAD_HISTORY, 1, R.string.download_history);
+		menu.add(0, ITEM_ID_DOWNLOAD_HISTORY, 0, R.string.download_history);
 		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		menu.findItem(ITEM_ID_GO_BACK).setEnabled(webview.canGoBack());
+		menu.findItem(ITEM_ID_GO_FOWARD).setEnabled(webview.canGoForward());
+		if (nowloading) {
+			menu.findItem(ITEM_ID_RELOAD_OR_STOP).setTitle(R.string.stop);
+		} else {
+			menu.findItem(ITEM_ID_RELOAD_OR_STOP).setTitle(R.string.reload);
+		}
+		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		int itemId = item.getItemId();
+		if (itemId == ITEM_ID_GO_BACK) {
+			if (webview.canGoBack()) webview.goBack();
+			return true;
+		}
+		if (itemId == ITEM_ID_GO_FOWARD) {
+			if (webview.canGoForward()) webview.goForward();
+			return true;
+		}
+		if (itemId == ITEM_ID_RELOAD_OR_STOP) {
+			if (nowloading) {
+				showToast("stop loading...");
+				webview.stopLoading();
+			} else {
+				webview.reload();
+			}
+			return true;
+		}
 		if (itemId == ITEM_ID_SEARCH) {
 			openSearchDialog();
 			return true;
-		} else if (itemId == ITEM_ID_DOWNLOAD_HISTORY) {
+		}
+		if (itemId == ITEM_ID_DOWNLOAD_HISTORY) {
 			startDownloadHistoryActivity();
 			return true;
 		}
@@ -221,5 +270,14 @@ public abstract class BaseBrowserActivity extends Activity implements DownloadLi
 		filename = fn.getUniqueFileName(files);
 		
 		return filename;
+	}
+	
+
+	void showToast(int resId) {
+		Toast.makeText(this, resId, Toast.LENGTH_SHORT).show();
+	}
+	
+	void showToast(String text) {
+		Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
 	}
 }
