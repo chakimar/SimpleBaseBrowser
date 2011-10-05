@@ -1,5 +1,7 @@
 package name.chakimar.sbb;
 
+import java.io.File;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
@@ -203,9 +205,21 @@ public abstract class BaseBrowserActivity extends Activity implements DownloadLi
 			String contentDisposition, String mimetype) {
 		DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
 		DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-		request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, URLUtil.guessFileName(url, contentDisposition, mimetype));
+		String filename = guessUniqueFileName(url, contentDisposition, mimetype);
+		request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename);
 		//		request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI);
 		request.setMimeType(mimetype);
 		dm.enqueue(request);
+	}
+
+	private String guessUniqueFileName(String url, String contentDisposition,
+			String mimetype) {
+		String filename = URLUtil.guessFileName(url, contentDisposition, mimetype);
+		File downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+		String[] files = downloadDir.list();
+		FileName fn = new FileName(filename);
+		filename = fn.getUniqueFileName(files);
+		
+		return filename;
 	}
 }
