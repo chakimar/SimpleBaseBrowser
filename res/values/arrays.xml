@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="bookmark_menu">
+        <item>開く</item>
+        <item>編集</item>
+        <item>ショートカットを作成</item>
+        <item>リンクを共有</item>
+        <item>URLをコピー</item>
+        <item>削除</item>
+        <item>ホームページとして設定</item>
+    </string-array>
+</resources>

@@ -5,6 +5,7 @@ import java.io.File;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -32,9 +33,13 @@ public abstract class BaseBrowserActivity extends Activity implements DownloadLi
 	private static final int ITEM_ID_GO_FOWARD = ITEM_ID_GO_BACK + 1;
 	private static final int ITEM_ID_RELOAD_OR_STOP = ITEM_ID_GO_FOWARD + 1;
 	private static final int ITEM_ID_SEARCH = ITEM_ID_RELOAD_OR_STOP + 1;
-	private static final int ITEM_ID_HOMEPAGE = ITEM_ID_SEARCH + 1;
+	private static final int ITEM_ID_READ_BOOKMARKS = ITEM_ID_SEARCH + 1;
+	private static final int ITEM_ID_HOMEPAGE = ITEM_ID_READ_BOOKMARKS + 1;
 	private static final int ITEM_ID_DOWNLOAD_HISTORY = ITEM_ID_HOMEPAGE + 1;
 	private static final int ITEM_ID_SETTINGS = ITEM_ID_DOWNLOAD_HISTORY + 1;
+	private static final int REQUEST_CODE_READ_BOOKMARKS = 0;
+    private final static String EXTRA_SHARE_FAVICON = "share_favicon";
+	private static final String EXTRA_SHARE_SCREENSHOT = "share_screenshot";
 	protected SimpleBaseBrowser app;
 	protected WebView webview;
 	public boolean nowloading;
@@ -67,6 +72,23 @@ public abstract class BaseBrowserActivity extends Activity implements DownloadLi
 		}
 	};
 
+
+    public static final void sharePage(Context c, String title, String url,
+            Bitmap favicon, Bitmap screenshot) {
+        Intent send = new Intent(Intent.ACTION_SEND);
+        send.setType("text/plain");
+        send.putExtra(Intent.EXTRA_TEXT, url);
+        send.putExtra(Intent.EXTRA_SUBJECT, title);
+        send.putExtra(EXTRA_SHARE_FAVICON, favicon);
+        send.putExtra(EXTRA_SHARE_SCREENSHOT, screenshot);
+        try {
+            c.startActivity(Intent.createChooser(send, c.getString(
+                    R.string.choosertitle_sharevia)));
+        } catch(android.content.ActivityNotFoundException ex) {
+            // if no app handles it, do nothing
+        }
+    }
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -160,6 +182,7 @@ public abstract class BaseBrowserActivity extends Activity implements DownloadLi
 		menu.add(0, ITEM_ID_GO_FOWARD, 0, R.string.go_foward);
 		menu.add(0, ITEM_ID_RELOAD_OR_STOP, 0, R.string.reload);
 		menu.add(0, ITEM_ID_SEARCH, 0, R.string.search);
+		menu.add(0, ITEM_ID_READ_BOOKMARKS, 0, R.string.bookmark);
 		menu.add(0, ITEM_ID_HOMEPAGE, 0, R.string.homepage);
 		menu.add(0, ITEM_ID_DOWNLOAD_HISTORY, 0, R.string.download_history).setIntent(new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS));
 		menu.add(0, ITEM_ID_SETTINGS, 0, R.string.settings).setIntent(new Intent(this, BaseSettingsActivity.class));
@@ -202,11 +225,23 @@ public abstract class BaseBrowserActivity extends Activity implements DownloadLi
 			openSearchDialog();
 			return true;
 		}
+		if (itemId == ITEM_ID_READ_BOOKMARKS) {
+			startActivityForResult(new Intent(this, BookmarkListActivity.class), REQUEST_CODE_READ_BOOKMARKS);
+			return true;
+		}
 		if (itemId == ITEM_ID_HOMEPAGE) {
 			loadUrl(app.getHomepage());
 			return true;
 		}
 		return super.onMenuItemSelected(featureId, item);
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == REQUEST_CODE_READ_BOOKMARKS && resultCode == RESULT_OK) {
+			String url = data.getStringExtra("url");
+			loadUrl(url);
+		}
 	}
 
 	protected void openSearchDialog() {
@@ -272,7 +307,6 @@ public abstract class BaseBrowserActivity extends Activity implements DownloadLi
 		
 		return filename;
 	}
-	
 
 	void showToast(int resId) {
 		Toast.makeText(this, resId, Toast.LENGTH_SHORT).show();

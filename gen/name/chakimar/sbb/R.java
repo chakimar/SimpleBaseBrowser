@@ -8,27 +8,39 @@
 package name.chakimar.sbb;
 
 public final class R {
+    public static final class array {
+        public static final int bookmark_menu=0x7f050000;
+    }
     public static final class attr {
     }
     public static final class drawable {
-        public static final int icon=0x7f020000;
+        public static final int bookmark=0x7f020000;
+        public static final int icon=0x7f020001;
+    }
+    public static final class id {
+        public static final int bookmark_image=0x7f070000;
+        public static final int bookmark_title=0x7f070001;
+        public static final int bookmark_url=0x7f070002;
     }
     public static final class layout {
         public static final int move_or_search_dialog=0x7f030000;
+        public static final int row_bookmark=0x7f030001;
     }
     public static final class string {
-        public static final int app_name=0x7f050000;
-        public static final int cancel=0x7f050002;
-        public static final int download_history=0x7f050005;
-        public static final int go_back=0x7f050007;
-        public static final int go_foward=0x7f050006;
-        public static final int homepage=0x7f05000a;
-        public static final int move=0x7f050003;
-        public static final int ok=0x7f050001;
-        public static final int reload=0x7f050008;
-        public static final int search=0x7f050004;
-        public static final int settings=0x7f05000b;
-        public static final int stop=0x7f050009;
+        public static final int app_name=0x7f060000;
+        public static final int bookmark=0x7f06000a;
+        public static final int cancel=0x7f060002;
+        public static final int choosertitle_sharevia=0x7f06000d;
+        public static final int download_history=0x7f060005;
+        public static final int go_back=0x7f060007;
+        public static final int go_foward=0x7f060006;
+        public static final int homepage=0x7f06000b;
+        public static final int move=0x7f060003;
+        public static final int ok=0x7f060001;
+        public static final int reload=0x7f060008;
+        public static final int search=0x7f060004;
+        public static final int settings=0x7f06000c;
+        public static final int stop=0x7f060009;
     }
     public static final class xml {
         public static final int settings=0x7f040000;
