@@ -18,13 +18,19 @@ public final class R {
         public static final int icon=0x7f020001;
     }
     public static final class id {
-        public static final int bookmark_image=0x7f070000;
-        public static final int bookmark_title=0x7f070001;
-        public static final int bookmark_url=0x7f070002;
+        public static final int bookmark_image=0x7f070005;
+        public static final int bookmark_title=0x7f070006;
+        public static final int bookmark_url=0x7f070007;
+        public static final int host_view=0x7f070000;
+        public static final int http_auth_password_edit=0x7f070004;
+        public static final int http_auth_username_edit=0x7f070002;
+        public static final int password_view=0x7f070003;
+        public static final int username_view=0x7f070001;
     }
     public static final class layout {
-        public static final int move_or_search_dialog=0x7f030000;
-        public static final int row_bookmark=0x7f030001;
+        public static final int http_auth_dialog=0x7f030000;
+        public static final int move_or_search_dialog=0x7f030001;
+        public static final int row_bookmark=0x7f030002;
     }
     public static final class string {
         public static final int add_bookmark=0x7f06000a;
@@ -32,6 +38,10 @@ public final class R {
          */
         public static final int added_to_bookmarks=0x7f060010;
         public static final int app_name=0x7f060000;
+        public static final int auth_dialog_cancel=0x7f060015;
+        public static final int auth_dialog_ok=0x7f060014;
+        public static final int auth_password=0x7f060013;
+        public static final int auth_username=0x7f060012;
         public static final int bookmark=0x7f06000b;
         public static final int cancel=0x7f060002;
         public static final int choosertitle_sharevia=0x7f06000e;

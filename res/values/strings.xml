@@ -26,4 +26,9 @@
     <string name="added_to_bookmarks">Added to bookmarks</string>
     <!-- Toast shown when a history item's star is clicked off, removing its bookmark -->
     <string name="removed_from_bookmarks">Removed from bookmarks</string>
+    
+    <string name="auth_username">名前</string>
+    <string name="auth_password">パスワード</string>
+    <string name="auth_dialog_ok">ログイン</string>
+    <string name="auth_dialog_cancel">キャンセル</string>
 </resources>

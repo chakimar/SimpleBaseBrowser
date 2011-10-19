@@ -16,14 +16,17 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.DownloadListener;
+import android.webkit.HttpAuthHandler;
 import android.webkit.URLUtil;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,7 +58,24 @@ public abstract class BaseBrowserActivity extends Activity implements DownloadLi
 		public void onPageFinished(WebView view, String url) {
 			BaseBrowserActivity.this.nowloading = false;
 		}
-		//TODO ベーシック認証に対応する
+		
+		@Override
+		public void onReceivedHttpAuthRequest(WebView view,
+				HttpAuthHandler handler, String host, String realm) {
+			String[] up = view.getHttpAuthUsernamePassword(host, realm);
+			if( up != null && up.length == 2 && handler.useHttpAuthUsernamePassword()) {
+				String username = up[0];
+				String password = up[1];
+				if (username!= null && password != null) {
+					handler.proceed(up[0], up[1]);
+				} else {
+					handler.cancel();
+				}
+			}
+			else{
+				showHttpAuthenication(handler, host, realm, null, null, 0);
+			}
+		}
 		//TODO フォームのリサブミットに対応する
 		//TODO SSLエラーに対応する。（オレオレ証明書）
 		//TODO マーケットのリンク等、WebViewで開けないリンクに対応する
@@ -319,6 +339,63 @@ public abstract class BaseBrowserActivity extends Activity implements DownloadLi
 		return filename;
 	}
 
+
+	private void showHttpAuthenication(final HttpAuthHandler handler, final String host, final String realm, final String name, final String password, int focusId)
+	{
+		LayoutInflater factory = LayoutInflater.from(this);
+		final View textEntryView = factory.inflate(R.layout.http_auth_dialog, null);
+		EditText et_user = (EditText)textEntryView.findViewById(R.id.http_auth_username_edit);
+		EditText et_pass = (EditText)textEntryView.findViewById(R.id.http_auth_password_edit);
+		
+		if(name!=null) {
+			et_user.setText(name);
+		}
+		if(password!=null) {
+			et_pass.setText(password);
+		}
+		((TextView)textEntryView.findViewById(R.id.host_view)).setText(host);
+		AlertDialog dialog = new AlertDialog.Builder(this)
+		.setTitle(realm)
+		.setIcon(android.R.drawable.ic_dialog_alert)
+		.setView(textEntryView)
+		.setPositiveButton(R.string.auth_dialog_ok, new DialogInterface.OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int whichButton) {
+				EditText etAuthUserName = (EditText)textEntryView.findViewById(R.id.http_auth_username_edit);
+				EditText etAuthPassword = (EditText)textEntryView.findViewById(R.id.http_auth_password_edit);
+				String user = etAuthUserName.getText().toString();
+				String pass = etAuthPassword.getText().toString();
+				webview.setHttpAuthUsernamePassword(host, realm, user, pass);
+				handler.proceed(user, pass);
+			}
+		})
+		.setNegativeButton(R.string.auth_dialog_cancel, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int whichButton) {
+				handler.cancel();
+			}
+		})
+		.setOnCancelListener(new DialogInterface.OnCancelListener() {
+			@Override
+			public void onCancel(DialogInterface dialog) {
+				handler.cancel();
+
+			}
+		})
+		.create();
+
+		if(focusId!=0) {
+			//    		dialog.findViewById(focusId).requestFocus();//error code!!
+			textEntryView.findViewById(focusId).requestFocus();
+		} else {
+			textEntryView.findViewById(R.id.http_auth_username_edit).requestFocus();
+		}
+
+		dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+		dialog.show();
+	}
+	
 	void showToast(int resId) {
 		Toast.makeText(this, resId, Toast.LENGTH_SHORT).show();
 	}
