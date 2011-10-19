@@ -11,9 +11,19 @@
     <string name="reload">更新</string>
     <string name="stop">停止</string>
     
+    <string name="add_bookmark">ブックマークを追加</string>
     <string name="bookmark">ブックマーク</string>
     <string name="homepage">ホームページ</string>
     <string name="settings">設定</string>
     
     <string name="choosertitle_sharevia">Share via</string>
+    
+    
+    <string name="sendText">Select an action for text</string>
+    
+    
+    <!-- Toast shown when a history item's star is clicked, converting it to a bookmark -->
+    <string name="added_to_bookmarks">Added to bookmarks</string>
+    <!-- Toast shown when a history item's star is clicked off, removing its bookmark -->
+    <string name="removed_from_bookmarks">Removed from bookmarks</string>
 </resources>

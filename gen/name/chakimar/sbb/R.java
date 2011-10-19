@@ -27,19 +27,27 @@ public final class R {
         public static final int row_bookmark=0x7f030001;
     }
     public static final class string {
+        public static final int add_bookmark=0x7f06000a;
+        /**  Toast shown when a history item's star is clicked, converting it to a bookmark 
+         */
+        public static final int added_to_bookmarks=0x7f060010;
         public static final int app_name=0x7f060000;
-        public static final int bookmark=0x7f06000a;
+        public static final int bookmark=0x7f06000b;
         public static final int cancel=0x7f060002;
-        public static final int choosertitle_sharevia=0x7f06000d;
+        public static final int choosertitle_sharevia=0x7f06000e;
         public static final int download_history=0x7f060005;
         public static final int go_back=0x7f060007;
         public static final int go_foward=0x7f060006;
-        public static final int homepage=0x7f06000b;
+        public static final int homepage=0x7f06000c;
         public static final int move=0x7f060003;
         public static final int ok=0x7f060001;
         public static final int reload=0x7f060008;
+        /**  Toast shown when a history item's star is clicked off, removing its bookmark 
+         */
+        public static final int removed_from_bookmarks=0x7f060011;
         public static final int search=0x7f060004;
-        public static final int settings=0x7f06000c;
+        public static final int sendText=0x7f06000f;
+        public static final int settings=0x7f06000d;
         public static final int stop=0x7f060009;
     }
     public static final class xml {

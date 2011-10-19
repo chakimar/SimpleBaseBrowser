@@ -33,7 +33,8 @@ public abstract class BaseBrowserActivity extends Activity implements DownloadLi
 	private static final int ITEM_ID_GO_FOWARD = ITEM_ID_GO_BACK + 1;
 	private static final int ITEM_ID_RELOAD_OR_STOP = ITEM_ID_GO_FOWARD + 1;
 	private static final int ITEM_ID_SEARCH = ITEM_ID_RELOAD_OR_STOP + 1;
-	private static final int ITEM_ID_READ_BOOKMARKS = ITEM_ID_SEARCH + 1;
+	private static final int ITEM_ID_ADD_BOOKMARK = ITEM_ID_SEARCH + 1;
+	private static final int ITEM_ID_READ_BOOKMARKS = ITEM_ID_ADD_BOOKMARK + 1;
 	private static final int ITEM_ID_HOMEPAGE = ITEM_ID_READ_BOOKMARKS + 1;
 	private static final int ITEM_ID_DOWNLOAD_HISTORY = ITEM_ID_HOMEPAGE + 1;
 	private static final int ITEM_ID_SETTINGS = ITEM_ID_DOWNLOAD_HISTORY + 1;
@@ -182,6 +183,7 @@ public abstract class BaseBrowserActivity extends Activity implements DownloadLi
 		menu.add(0, ITEM_ID_GO_FOWARD, 0, R.string.go_foward);
 		menu.add(0, ITEM_ID_RELOAD_OR_STOP, 0, R.string.reload);
 		menu.add(0, ITEM_ID_SEARCH, 0, R.string.search);
+		menu.add(0, ITEM_ID_ADD_BOOKMARK, 0, R.string.add_bookmark);
 		menu.add(0, ITEM_ID_READ_BOOKMARKS, 0, R.string.bookmark);
 		menu.add(0, ITEM_ID_HOMEPAGE, 0, R.string.homepage);
 		menu.add(0, ITEM_ID_DOWNLOAD_HISTORY, 0, R.string.download_history).setIntent(new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS));
@@ -225,6 +227,10 @@ public abstract class BaseBrowserActivity extends Activity implements DownloadLi
 			openSearchDialog();
 			return true;
 		}
+		if (itemId == ITEM_ID_ADD_BOOKMARK) {
+			startAddBookmarkActivity();
+			return true;
+		}
 		if (itemId == ITEM_ID_READ_BOOKMARKS) {
 			startActivityForResult(new Intent(this, BookmarkListActivity.class), REQUEST_CODE_READ_BOOKMARKS);
 			return true;
@@ -234,6 +240,11 @@ public abstract class BaseBrowserActivity extends Activity implements DownloadLi
 			return true;
 		}
 		return super.onMenuItemSelected(featureId, item);
+	}
+
+	private void startAddBookmarkActivity() {
+		Intent intent = new Intent(this, AddBookmarkActivity.class);
+		startActivity(intent);
 	}
 
 	@Override
@@ -254,7 +265,7 @@ public abstract class BaseBrowserActivity extends Activity implements DownloadLi
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				String url = view.getText().toString();
-				if (!url.startsWith("http://")) {
+				if (!URLUtil.isValidUrl(url)) {
 					url = "http://" + url;
 				}
 				loadUrl(url);

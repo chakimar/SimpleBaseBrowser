@@ -28,4 +28,6 @@ public class SimpleBaseBrowser extends Application {
 	public void setHomePage(String url) {
 		putDataString(PREF_KEY_HOMEPAGE, url);
 	}
+	
+	
 }
